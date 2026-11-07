@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.env
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Node
+node_modules/
+frontend/dist/
+widget/dist/
+*.log
+npm-debug.log*
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database / local data
+*.db
+*.sqlite3
+pgdata/
+uploads/
+*.pdf
+*.csv
+
+# Secrets
+.env
+.env.local
+*.pem
+credentials.json
+
+# Eval results
+backend/evals/results/

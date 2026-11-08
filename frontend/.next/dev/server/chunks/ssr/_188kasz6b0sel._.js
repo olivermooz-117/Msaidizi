@@ -568,6 +568,12 @@ async function request(path, options = {}, token) {
             if (status === 401) {
                 throw new Error(toErrorMessage(data, "Invalid email or password."));
             }
+            if (status === 403) {
+                throw new Error(toErrorMessage(data, "You are not authorized to perform this action."));
+            }
+            if (status === 404) {
+                throw new Error(toErrorMessage(data, "The requested resource was not found."));
+            }
             if (status === 409) {
                 throw new Error(toErrorMessage(data, "Email address is already registered."));
             }

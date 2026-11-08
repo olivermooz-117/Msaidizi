@@ -2,11 +2,7 @@ import re
 import secrets
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (
-    create_access_token,
-    get_jwt_identity,
-    jwt_required,
-)
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,16 +19,12 @@ def clean_email(value):
 def validate_password(value):
     if not isinstance(value, str):
         return "Password is required."
-
     if len(value) < 8:
         return "Password must contain at least 8 characters."
-
     if len(value) > 128:
         return "Password is too long."
-
     if not re.search(r"[A-Za-z]", value) or not re.search(r"\d", value):
         return "Password must include at least one letter and one number."
-
     return ""
 
 
@@ -67,14 +59,12 @@ def register():
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        return jsonify(
-            {"error": "An account with this email already exists."}
-        ), 409
+        return jsonify({"error": "An account with this email already exists."}), 409
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"error": "Database unavailable. Please try again later."}), 503
 
-    token = create_access_token(identity=business.id)
+    token = create_access_token(identity=str(business.id))
 
     return jsonify(
         {
@@ -93,23 +83,18 @@ def register():
 @auth_bp.post("/login")
 def login():
     data = request.get_json(silent=True) or {}
-
     email = clean_email(data.get("email"))
     password = data.get("password", "")
 
     if not email or not isinstance(password, str):
         return jsonify({"error": "Email and password are required."}), 400
 
-    business = db.session.query(Business).filter_by(
-        owner_email=email
-    ).first()
+    business = db.session.query(Business).filter_by(owner_email=email).first()
 
-    if not business or not check_password_hash(
-        business.password_hash, password
-    ):
+    if not business or not check_password_hash(business.password_hash, password):
         return jsonify({"error": "Invalid email or password."}), 401
 
-    token = create_access_token(identity=business.id)
+    token = create_access_token(identity=str(business.id))
 
     return jsonify(
         {
@@ -128,9 +113,10 @@ def login():
 @jwt_required()
 def me():
     business_id = get_jwt_identity()
+    if business_id is None:
+        return jsonify({"error": "Authentication required."}), 401
 
-    business = db.session.get(Business, business_id)
-
+    business = db.session.get(Business, str(business_id))
     if not business:
         return jsonify({"error": "Business account not found."}), 404
 

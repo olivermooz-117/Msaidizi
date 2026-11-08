@@ -88,19 +88,21 @@ async function request<T>(
       if (status === 401) {
         throw new Error(toErrorMessage(data, "Invalid email or password."));
       }
-
+      if (status === 403) {
+        throw new Error(toErrorMessage(data, "You are not authorized to perform this action."));
+      }
+      if (status === 404) {
+        throw new Error(toErrorMessage(data, "The requested resource was not found."));
+      }
       if (status === 409) {
         throw new Error(toErrorMessage(data, "Email address is already registered."));
       }
-
       if (status === 400) {
         throw new Error(toErrorMessage(data, "Please check the form and try again."));
       }
-
       if (status >= 500) {
         throw new Error(toErrorMessage(data, "Server error. Please try again later."));
       }
-
       throw new Error(toErrorMessage(data, `Request failed (${status})`));
     }
 
@@ -109,11 +111,9 @@ async function request<T>(
     if (error instanceof TypeError) {
       throw new Error("Unable to connect to the server. Please try again later.");
     }
-
     if (error instanceof Error) {
       throw error;
     }
-
     throw new Error("Request failed. Please try again later.");
   }
 }

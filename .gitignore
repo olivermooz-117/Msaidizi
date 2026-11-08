@@ -4,11 +4,11 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 venv/
 .venv/
 ENV/
 .env
+.env.local
 *.egg-info/
 dist/
 build/
@@ -18,8 +18,9 @@ htmlcov/
 .mypy_cache/
 
 # Node
-node_modules/
-frontend/dist/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
 widget/dist/
 *.log
 npm-debug.log*
@@ -40,8 +41,6 @@ uploads/
 *.csv
 
 # Secrets
-.env
-.env.local
 *.pem
 credentials.json
 

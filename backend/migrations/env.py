@@ -4,13 +4,19 @@ from logging.config import fileConfig
 from flask import current_app
 from alembic import context
 
+# this is the Alembic Config object
 config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
 
 def get_engine():
-    return current_app.extensions["sqlalchemy"].db.get_engine()
+    try:
+        # Flask-SQLAlchemy < 3
+        return current_app.extensions["sqlalchemy"].db.get_engine()
+    except (TypeError, AttributeError):
+        # Flask-SQLAlchemy >= 3
+        return current_app.extensions["sqlalchemy"].engine
 
 
 def get_engine_url():
@@ -20,8 +26,10 @@ def get_engine_url():
         return str(get_engine().url).replace("%", "%%")
 
 
+# add your model's MetaData object here
+# for 'autogenerate' support
 config.set_main_option("sqlalchemy.url", get_engine_url())
-target_db = current_app.extensions["sqlalchemy"].db
+target_db = current_app.extensions["migrate"].db
 
 
 def get_metadata():
@@ -32,7 +40,10 @@ def get_metadata():
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=get_metadata(), literal_binds=True)
+    context.configure(
+        url=url, target_metadata=get_metadata(), literal_binds=True
+    )
+
     with context.begin_transaction():
         context.run_migrations()
 
@@ -50,8 +61,14 @@ def run_migrations_online():
         conf_args["process_revision_directives"] = process_revision_directives
 
     connectable = get_engine()
+
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=get_metadata(), **conf_args)
+        context.configure(
+            connection=connection,
+            target_metadata=get_metadata(),
+            **conf_args
+        )
+
         with context.begin_transaction():
             context.run_migrations()
 

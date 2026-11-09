@@ -1,1 +1,1 @@
-"""HTTP API blueprints for Msaidizi."""
+# blueprints package

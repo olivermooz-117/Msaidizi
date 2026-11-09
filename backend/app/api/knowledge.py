@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy import select
 
-from backend.app import db
+from backend.app.extensions import db
 from backend.app.models import Business, Chunk, Document
 
 knowledge_bp = Blueprint("knowledge", __name__)
